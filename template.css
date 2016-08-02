@@ -1,0 +1,44 @@
+@import 'https://fonts.googleapis.com/css?family=Roboto:300,400,500';
+
+.pageHeader {
+  background-color: cornflowerblue;
+  margin: 5% 16% 0;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.pageHeader h1 {
+  margin: 2% 2%;
+  color: #fff;
+  font-size: 2.5em;
+  font-weight: 300;
+  text-align: center;
+}
+
+body {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  line-height: 1.5;
+  color: #222;
+  background-color: #eee;
+}
+
+.pageBody {
+  margin: 0 auto;
+  max-width: 50em;
+  padding: 4em 1em;
+}
+
+.randomLocation {
+  text-align: center;
+  margin: 15px 0 ;
+}
+
+.pageBody button {
+  background-color: cornflowerblue;
+}
+
+.pageBody button:hover {
+  border-color: #204d74;
+  background-color: #5485dd;
+  color: white;
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="template.css">
+    <link rel="stylesheet" 
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+      crossorigin="anonymous"
+    >
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="main.js"></script>
+  </head>
+  <body>
+    <div class="pageHeader">
+      <h1> How bad is your weather (relative to somewhere else)? </h1>
+    </div>
+    <div class="pageBody">
+      <form>
+        <div class="form-group">
+          <label for="location-input">Your location</label>
+          <input type="text" class="form-control" id="location-input" placeholder="Chicago, 60304, NYC">
+        </div>
+      </form>
+      <label for="compare-input">Compare to</label>
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Dehli, Springfield, 90210">
+        <span class="input-group-btn">
+          <button class="btn btn-primary" 
+            type="button"
+            id="search-button">
+              Go!
+            </button>
+        </span>
+        </div>
+        <div class="randomLocation">
+          <span>Or, <button class="btn btn-primary" 
+          type="button"
+          id="random-button">
+            Random
+          </buttom>
+          </span>
+        </div>
+    </div>
+  </body>
+</html>
