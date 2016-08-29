@@ -14,7 +14,7 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
             var apiQuery = url.parse(PATH, parseQueryString = true);
             // next three lines need to be changed to handle more robust generalized validateReq
             const validatedQueryObj = validateReq(parsedClientReq.query);
-            if (!validatedQueryObj.flag === 'OK')
+            if (!validatedQueryObj.flag === 'OK') {
                console.error(`${validatedQueryObj.flag}`);
                process.exit;
             }
@@ -53,8 +53,8 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
                   });
                });
             }
-        } 
-         else response.end('Send me a GET');
+	 }
+       else response.end('Send me a GET');
    };
 
    function validateReq(clientReq) {
