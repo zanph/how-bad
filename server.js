@@ -80,8 +80,10 @@ function validateReq(clientReq) {
     var trimmed = clientReq['q'].split(',').map(function (element) {
         return element.trim();
     });
+    const city = trimmed[0];
 
     if (trimmed.length === 1) {
+        //maybe validate city here.
         if (trimmed.test(/^\d+$/)) {
             
             const zipRe = /^[1-9]\d{3,4}$/;
@@ -101,26 +103,25 @@ function validateReq(clientReq) {
             mainObj.zip = -1;
             //pretty sure this wont work since city isn't defined yet...
             mainObj.cities = findID(cityDB, city); 
-            mainObj.flag = mainObj.cities.length >= 1 ? 'OK' : 'ERROR: city not found'
+            mainObj.flag = mainObj.cities.length >= 1 ? 'OK' : 'ERROR: city not found';
             return mainObj;
         }
 
         else {
-            console.log(`it is exceedingly unlikely that we should be here`);
+            console.log('it is exceedingly unlikely that we should be here');
             mainObj.flag = 'ERROR: UNLIKELY';
             return mainObj;
         }
     }
     else { // assume client is searching by city
-        const city = trimmed[0];
         const country = trimmed[1];
         
         mainObj.zip= -1; // sentinel value
         mainObj.cities = findID(cityDB, city, country);
-        mainObj.flag = mainObj.cities.length === 1 ? 'OK' : 'ERROR: city not found'
+        mainObj.flag = mainObj.cities.length === 1 ? 'OK' : 'ERROR: city not found';
         return mainObj;
     }
-};
+}
 
 function findID(cityDB, city, country) {
     // search cityDB for queried city and country.
@@ -128,10 +129,10 @@ function findID(cityDB, city, country) {
     // for now, return first match
     // must address possibility of multiple matches
     // ALWAYS RETURN LIST OF OBJECTS WITH SAME PROPERTIES: .ID AND .NAME
+    var ids = [];
+    var obj = {};
     if (arguments.length === 3) {
-        var ids = []
-        var obj = {};
-        for (var i = 0; i < cityDB.length; i++) {
+        for (let i = 0; i < cityDB.length; i++) {
             if (cityDB[i].name === city && cityDB[i].country === country) {
                 console.log(`I found id ${cityDB[i]._id} matching city ${city},${country}`);
                 obj.name = cityDB[i].name;
@@ -143,11 +144,8 @@ function findID(cityDB, city, country) {
         }
         return {}; // empty object  -- city/country not found
     }
-    
     else if (arguments.length === 2) {
-        var ids = [];
-        var obj = {};
-        for (var i = 0; i < cityDB.length; i++) {
+        for (let i = 0; i < cityDB.length; i++) {
             if (cityDB[i].name === city) {
                 obj.name = cityDB[i].name;
                 obj.id = cityDB[i]._id;
@@ -157,7 +155,7 @@ function findID(cityDB, city, country) {
         }
     }
     return ids;
-};
+}
 
 
 var server = http.createServer(onRequest);
