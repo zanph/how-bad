@@ -11,14 +11,20 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
             
             // parsedClientReq is the parsed curl request
             var parsedClientReq = url.parse(request.url, parseQueryString = true);
-            var apiReq = url.parse(PATH, parseQueryString = true);
-            // validateReq modifies the api query object as a side effect. This is by design.
-            if (!validateReq(parsedClientReq.query, apiReq.query)) {
-               console.error(`Error: invalid query ${parsedClientReq}`);
+            var apiQuery = url.parse(PATH, parseQueryString = true);
+            // next three lines need to be changed to handle more robust generalized validateReq
+            var validatedQueryObj = validateReq(parsedClientReq.query);
+            if (!validatedQueryObj.flag === 'OK')
+               console.error(`${validatedQueryObj.flag}`);
                process.exit;
             }
 
             else {
+               // create appropriate query object depending on whether we're searching by
+               // zip code or by IDs. Also, tell user to specify which city they want to
+               // use in the case of multiple cities with the same name
+               // by stringifying validatedQueryObj.cities and sending it over. Also
+               // send specific errors to user.
 
                console.log('parsed url sent to openweather: ' + url.format(apiReq));
                // I need to refactor the streaming of the get request to use through2.
@@ -51,33 +57,61 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
          else response.end('Send me a GET');
    };
 
-   function validateReq(clientReq, apiQuery) {
+   function validateReq(clientReq) {
       // creates appropriate query object for api call via zipcode or city name
       // and checks it against the world city database. If city name & country
       // are found, prepares to call API with unique city ID.
       // Returns 1 if we have a valid query, 0 otherwise
-      zipRe = /\s*[^A-Za-z][1-9]\d{3,4}$/;
-      if (clientReq['q'].match(zipRe)) {     //  call API by zipcode
-         apiQuery['zip'] = clientReq['q'].match(zipRe) + ',US';
-         apiQuery['APPID'] = process.env.APIKEY;
-          
-         return 1;
+      // if there is a mix of digits and letters, it's invalid.
+      //
+      // if it has length 1, check if it has digits
+      // else, check if its just letters, then assume its a city (insert function call 
+      // here to look up cities)
+      // SHOULD ONLY RETURN ONE OBJECT, WHICH COULD CONTAIN A LIST OF CITY OBJECTS (ID/NAME)
+      // AND A ERROR OR SUCCESS FLAG
+      // mainObj.cities will be a list of city objects name and ID keys 
+      var mainObj = {};
+      len1Re = /[A-Za-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/;
+      trimmed = clientReq['q'].split(',').map(function (element) {
+         element = element.trim();
+      });
+
+      if (trimmed.length === 1) {
+         if (trimmed.test(/^\d+$/)) {
+      
+            zipRe = /^[1-9]\d{3,4}$/;
+            if (trimmed.match(zipRe)) {     //  call API by zipcode
+               mainObj.zip = trimmed.match(zipRe) + ',US'; 
+               mainObj.flag = 'OK';
+               return mainObj;
+            }
+            else console.log(`invalid query ${clientReq}`) {
+               mainObj.flag = 'ERROR: Invalid zip'; // invalid zipcode. We know it's a malformed zipcode, though.
+               // add more specific error handling!
+               return mainObj;
+            }
+         }
+         else if (trimmed.match(len1Re)) {
+            mainObj.zip = -1;
+            mainObj.cities = findID(cityDB, city); 
+            mainObj.flag = mainObj.cities.length >== 1 ? 'OK' : 'ERROR: city not found'
+            return mainObj;
+         }
+
+         else {
+            console.log(`it exceedingly unlikely that we should be here`);
+            mainObj.flag = 'ERROR: UNLIKELY';
+            return mainObj;
+         }
       }
       else { // assume client is searching by city
-        separated = clientReq['q'].split(',');
-        city = separated[0].trim();
-        country = separated[1].trim();
-        id = findID(cityDB, city, country); 
+        city = trimmed[0];
+        country = trimmed[1];
         
-        if (id !== 0) {
-           apiQuery['id'] = id;
-           apiQuery['APPID'] = process.env.APIKEY;
-        
-           return 1;
-        }
-        else {
-           return 0;  // 0 indicates clientReq not found in db
-        }
+        mainObj.zip= -1; // sentinel value
+        mainObj.cities = findID(cityDB, city, country);
+        mainObj.flag = mainObj.cities.length === 1 ? 'OK' : 'ERROR: city not found'
+        return mainObj;
       }
    };
 
@@ -86,16 +120,37 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
       // if found, return matching db object, else, return undefined
       // for now, return first match
       // must address possibility of multiple matches
-      for (var i = 0; i < cityDB.length; i++) {
-         if (cityDB[i].name === city && cityDB[i].country === country) {
-            console.log(`I found id ${cityDB[i]._id} matching city ${city},${country}`);
-            return cityDB[i]._id;
+      // ALWAYS RETURN LIST OF OBJECTS WITH SAME PROPERTIES: .ID AND .NAME
+      if (arguments.length === 3) {
+         var ids = []
+         var obj = {};
+         for (var i = 0; i < cityDB.length; i++) {
+            if (cityDB[i].name === city && cityDB[i].country === country) {
+               console.log(`I found id ${cityDB[i]._id} matching city ${city},${country}`);
+               obj.name = cityDB[i].name;
+               obj.id = cityDB[i]._id;
+               ids.push(obj);
+               return ids;
+            }
+            else continue;
          }
-         else continue;
+            return {}; // empty object  -- city/country not found
       }
-         return 0; // sentinel value -- city/country not found
+   
+      else if (arguments.length === 2) {
+         var ids = [];
+         var obj = {};
+         for (var i = 0; i < cityDB.length; i++) {
+            if (cityDB[i].name === city) {
+               obj.name = cityDB[i].name;
+               obj.id = cityDB[i]._id;
+               ids.push(obj); 
+            }
+            else continue:
+         }
+      }
+      return ids;
    };
-
 
 
    var server = http.createServer(onRequest);
