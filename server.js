@@ -10,10 +10,10 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
          if (request.method === 'GET') {
             
             // parsedClientReq is the parsed curl request
-            var parsedClientReq = url.parse(request.url, parseQueryString = true);
+            const parsedClientReq = url.parse(request.url, parseQueryString = true);
             var apiQuery = url.parse(PATH, parseQueryString = true);
             // next three lines need to be changed to handle more robust generalized validateReq
-            var validatedQueryObj = validateReq(parsedClientReq.query);
+            const validatedQueryObj = validateReq(parsedClientReq.query);
             if (!validatedQueryObj.flag === 'OK')
                console.error(`${validatedQueryObj.flag}`);
                process.exit;
@@ -38,7 +38,7 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
                   }).on('end', function() {
                      resbody = Buffer.concat(resbody);
                      //console.log(`Can we print out a raw JSON property? : ${resbody.id}`);// no we can't. It's undefined.
-                     var jsn = JSON.parse(resbody);
+                     const jsn = JSON.parse(resbody);
                      console.log(jsn);
                      console.log(`The weather in ${jsn.name} is ${jsn.weather[0].description}. It\'s 
                            currently ${jsn.main['temp']} degrees K.`);
@@ -46,8 +46,8 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
 
                      response.writeHead(200, {"Content-Type": "text/plain"})
                      // you can only write back strings or buffers!!!;
-                     response.end(`${jsn.name.toString()}, ${jsn.sys.country.toString()}:
-                            ${jsn.weather[0].description.toString()} and ${jsn.main.temp.toString()} degrees K`);
+                      response.end(`${jsn.name.toString()}, ${jsn.sys.country.toString()}:
+                            ${jsn.weather[0].description} and ${jsn.main.temp.toString()} degrees K`);
                      }).on('error', (err) => {
                      console.log(`Got error: ${err}`);
                   });
@@ -71,8 +71,8 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
       // AND A ERROR OR SUCCESS FLAG
       // mainObj.cities will be a list of city objects name and ID keys 
       var mainObj = {};
-      len1Re = /[A-Za-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/;
-      trimmed = clientReq['q'].split(',').map(function (element) {
+      const len1Re = /[A-Za-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/;
+      var trimmed = clientReq['q'].split(',').map(function (element) {
          element = element.trim();
       });
 
@@ -93,20 +93,21 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
          }
          else if (trimmed.match(len1Re)) {
             mainObj.zip = -1;
+	    //pretty sure this wont work since city isn't defined yet...
             mainObj.cities = findID(cityDB, city); 
             mainObj.flag = mainObj.cities.length >== 1 ? 'OK' : 'ERROR: city not found'
             return mainObj;
          }
 
          else {
-            console.log(`it exceedingly unlikely that we should be here`);
+            console.log(`it is exceedingly unlikely that we should be here`);
             mainObj.flag = 'ERROR: UNLIKELY';
             return mainObj;
          }
       }
       else { // assume client is searching by city
-        city = trimmed[0];
-        country = trimmed[1];
+        const city = trimmed[0];
+        const country = trimmed[1];
         
         mainObj.zip= -1; // sentinel value
         mainObj.cities = findID(cityDB, city, country);
