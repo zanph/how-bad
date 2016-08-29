@@ -85,7 +85,8 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
                mainObj.flag = 'OK';
                return mainObj;
             }
-            else console.log(`invalid query ${clientReq}`) {
+             else {
+	       console.log(`invalid query ${clientReq}`)
                mainObj.flag = 'ERROR: Invalid zip'; // invalid zipcode. We know it's a malformed zipcode, though.
                // add more specific error handling!
                return mainObj;
@@ -95,7 +96,7 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
             mainObj.zip = -1;
 	    //pretty sure this wont work since city isn't defined yet...
             mainObj.cities = findID(cityDB, city); 
-            mainObj.flag = mainObj.cities.length >== 1 ? 'OK' : 'ERROR: city not found'
+            mainObj.flag = mainObj.cities.length >= 1 ? 'OK' : 'ERROR: city not found'
             return mainObj;
          }
 
@@ -147,7 +148,7 @@ var PATH = 'http://api.openweathermap.org/data/2.5/weather';
                obj.id = cityDB[i]._id;
                ids.push(obj); 
             }
-            else continue:
+            else continue;
          }
       }
       return ids;
