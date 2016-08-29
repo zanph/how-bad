@@ -1,5 +1,6 @@
 var http = require('http');
-var fs = require('fs');
+//not used yet
+//var fs = require('fs');
 var url = require('url');
 //var through2 = require('through2');
 var cityDB = require('./city.list.json');
@@ -10,8 +11,8 @@ function onRequest(request, response) {
     if (request.method === 'GET') {
         
         // parsedClientReq is the parsed curl request
-        const parsedClientReq = url.parse(request.url, parseQueryString = true);
-        var apiQuery = url.parse(PATH, parseQueryString = true);
+        const parsedClientReq = url.parse(request.url, true);
+        var apiQuery = url.parse(PATH, true);
         // next three lines need to be changed to handle more robust generalized validateReq
         const validatedQueryObj = validateReq(parsedClientReq.query);
         if (!validatedQueryObj.flag === 'OK') {
@@ -25,6 +26,10 @@ function onRequest(request, response) {
             // use in the case of multiple cities with the same name
             // by stringifying validatedQueryObj.cities and sending it over. Also
             // send specific errors to user.
+
+            //!!!!
+            //apiReq isn't defined here
+            //!!!!
 
             console.log('parsed url sent to openweather: ' + url.format(apiReq));
             // I need to refactor the streaming of the get request to use through2.
@@ -40,11 +45,11 @@ function onRequest(request, response) {
                     //console.log(`Can we print out a raw JSON property? : ${resbody.id}`);// no we can't. It's undefined.
                     const jsn = JSON.parse(resbody);
                     console.log(jsn);
-                    console.log(`The weather in ${jsn.name} is ${jsn.weather[0].description}. It\'s 
+                    console.log(`The weather in ${jsn.name} is ${jsn.weather[0].description}. It\'s \
                                 currently ${jsn.main['temp']} degrees K.`);
                     //console.log(typeof jsn.id); // it's a number! That's why we need to toString() it below
 
-                    response.writeHead(200, {"Content-Type": "text/plain"})
+                    response.writeHead(200, {'Content-Type': 'text/plain'});
                     // you can only write back strings or buffers!!!;
                     response.end(`${jsn.name.toString()}, ${jsn.sys.country.toString()}:
                                  ${jsn.weather[0].description} and ${jsn.main.temp.toString()} degrees K`);
@@ -53,9 +58,9 @@ function onRequest(request, response) {
                 });
             });
         }
-	 }
+    }
     else response.end('Send me a GET');
-};
+}
 
 function validateReq(clientReq) {
     // creates appropriate query object for api call via zipcode or city name
@@ -73,20 +78,20 @@ function validateReq(clientReq) {
     var mainObj = {};
     const len1Re = /[A-Za-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/;
     var trimmed = clientReq['q'].split(',').map(function (element) {
-        element = element.trim();
+        return element.trim();
     });
 
     if (trimmed.length === 1) {
         if (trimmed.test(/^\d+$/)) {
             
-            zipRe = /^[1-9]\d{3,4}$/;
+            const zipRe = /^[1-9]\d{3,4}$/;
             if (trimmed.match(zipRe)) {     //  call API by zipcode
                 mainObj.zip = trimmed.match(zipRe) + ',US'; 
                 mainObj.flag = 'OK';
                 return mainObj;
             }
             else {
-	             console.log(`invalid query ${clientReq}`)
+                console.log(`invalid query ${clientReq}`);
                 mainObj.flag = 'ERROR: Invalid zip'; // invalid zipcode. We know it's a malformed zipcode, though.
                 // add more specific error handling!
                 return mainObj;
@@ -94,7 +99,7 @@ function validateReq(clientReq) {
         }
         else if (trimmed.match(len1Re)) {
             mainObj.zip = -1;
-	         //pretty sure this wont work since city isn't defined yet...
+            //pretty sure this wont work since city isn't defined yet...
             mainObj.cities = findID(cityDB, city); 
             mainObj.flag = mainObj.cities.length >= 1 ? 'OK' : 'ERROR: city not found'
             return mainObj;
