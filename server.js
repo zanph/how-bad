@@ -93,7 +93,7 @@ function validateReq(clientReq) {
                 return mainObj;
             }
             else {
-                console.log(`invalid query ${clientReq}`);
+                console.log(`invalid query ${clientReq['q']}`);
                 mainObj.flag = 'ERROR: Invalid zip'; // invalid zipcode. We know it's a malformed zipcode, though.
                 // add more specific error handling!
                 return mainObj;

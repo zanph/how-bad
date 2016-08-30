@@ -1,0 +1,21 @@
+verifying zipcode detector:
+   48108, 60187, 60612, 94117 (all valid)
+malformed zipcodes:
+   01953, 954659, 0125, 193 (all detected as such)
+
+city + country:
+   Paris,FR, San Francisco,US, Chicago,US (all detected)
+
+city:
+   Paris, San Francisco (both report there are too many cities, and to specify country code)
+
+Strange bugs:
+   $$$aaa yields Washington, DC. URL sent to API:  http://api.openweathermap.org/data/2.5/weather?zip=7855%2CUS
+   99999 and 3125 yield DC as well
+      3125 URL: http://api.openweathermap.org/data/2.5/weather?zip=3125%2CUS
+      99999 URL: http://api.openweathermap.org/data/2.5/weather?zip=99999%2CUS
+
+   this is probably a bug in the API or perhaps a design decision by the API developers themselves
+
+   I need to add regex to automatically reject out of hand any query containing special characters (!@#$%^&*()[]}{)
+      etc
