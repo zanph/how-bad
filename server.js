@@ -39,7 +39,7 @@ getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
 var exports = module.exports = {};
 
 // api call format: //  http://api.openweathermap.org/data/2.5/forecast/city?id=524901&APPID={APIKEY} 
-exports.onRequest = function onRequest(request, response) {
+function onRequest(request, response) {
     if (request.method === 'GET') {
         
         // parsedClientReq is the parsed curl request
@@ -96,7 +96,7 @@ exports.onRequest = function onRequest(request, response) {
       response.end('Send me a GET');
     }
 }
-exports.validateReq = function validateReq(clientReq) {
+function validateReq(clientReq) {
     // creates appropriate query object for api call via zipcode or city name
     // and checks it against the world city database. If city name & country
     // are found, prepares to call API with unique city ID.
@@ -160,7 +160,7 @@ exports.validateReq = function validateReq(clientReq) {
     }
 }
 
-exports.findID = function findID(cityDB, city, country) {
+function findID(cityDB, city, country) {
     // search cityDB for queried city and country.
     // if found, return matching db object, else, return undefined
     // for now, return first match
@@ -194,7 +194,7 @@ exports.findID = function findID(cityDB, city, country) {
     return ids;
 }
 
-exports.callAPI = function callAPI(response, apiReq) {
+function callAPI(response, apiReq) {
 
    console.log('parsed url sent to openweather: ' + url.format(apiReq));
    // I need to refactor the streaming of the get request to use through2.
@@ -287,4 +287,3 @@ console.log('Server has started');
 exports.validateReq = validateReq;
 exports.findID = findID;
 exports.callAPI = callAPI;
-

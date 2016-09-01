@@ -32,5 +32,13 @@ describe('validateReq', function() {
         expect(response.flag, 'response flag:').to
             .equal('ERROR: Invalid zip');
     });
+    it('should return an error flag indicating city is not found if city does not exist in DB', function () {
+       let request = { 'q':'XanaduSparklehorse' };
+       let response = validateReq(request);
+       expect(response).to.be.a('object');
+       expect(response.to.have.property('flag');
+       expect(response.flag, 'response flag:').to
+            .equal('ERROR: city not found');
+    });
       
 });
