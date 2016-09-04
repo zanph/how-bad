@@ -1,10 +1,38 @@
-var http = require('http');
-//not used yet
+const http = require('http');
 //var fs = require('fs');
-var url = require('url');
+const url = require('url');
 //var through2 = require('through2');
-var cityDB = require('./city.list.json');
-var PATH = 'http://api.openweathermap.org/data/2.5/weather';
+const cityDB = require('./city.list.json');
+const PATH = 'http://api.openweathermap.org/data/2.5/weather';
+const CronJob = require('cron').CronJob;
+//initialize module
+var exports = module.exports = {};
+// update SF weather every 20 minutes
+var getSFweather = new CronJob('0 0,20,40 * * * * *', function() {
+      var SFquery = url.parse(PATH, true);
+      SFquery.query['id'] = 5391959;
+      SFquery.query['units'] = 'imperial';
+      SFquery.query['APPID'] = process.env.APIKEY;
+
+      http.get(url.format(SFquery), (res) => {
+          console.log(`Got SF weather; response code: ${res.statusCode}`);
+          var resbody = [];
+
+          res.on('data', function(chunk) {
+              resbody.push(chunk);
+          }).on('end', function() {
+              resbody = Buffer.concat(resbody);
+              const SFjsn = JSON.parse(resbody);
+              console.log('***SF WEATHER***\n');
+              console.log(SFjsn);
+          });
+      });
+    },
+    null, // no end function
+    true, // start job immediately
+    null // no time zone
+    );
+
 
 // api call format: //  http://api.openweathermap.org/data/2.5/forecast/city?id=524901&APPID={APIKEY} 
 function onRequest(request, response) {
@@ -35,13 +63,15 @@ function onRequest(request, response) {
             //       Remember. At this point we need to construct the actual API request
             if (validatedQueryObj.zip !== -1) {
                apiQuery.query['zip'] = validatedQueryObj.zip;
+               apiQuery.query['units'] = 'imperial';
                apiQuery.query['APPID'] = process.env.APIKEY;
                callAPI(response, apiQuery);
             } 
             else if (validatedQueryObj.cities.length === 1) {
                apiQuery.query['id'] = validatedQueryObj.cities[0].id;
+               apiQuery.query['units'] = 'imperial';
                apiQuery.query['APPID'] = process.env.APIKEY;
-               callAPI(response, apiQuery);
+               callAPI(response, apiQuery, SFjsn);
             }
             else {
                if (validatedQueryObj.cities.length > 5) {
@@ -77,6 +107,10 @@ function validateReq(clientReq) {
     // mainObj.cities will be a list of city objects name and ID keys 
     var mainObj = {};
     const len1Re = /[A-Za-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/;
+    if (/[!@#$%^&*()_+=\[\]{}\|\/\?\\;<>-]+/.test(clientReq['q'])) {
+      mainObj.flag = 'ERROR: Invalid characters. Enter a US zip code or a city and country, separated by commas';
+      return mainObj;
+    }
     var trimmed = clientReq['q'].split(',').map(function (element) {
         return element.trim();
     });
@@ -101,7 +135,6 @@ function validateReq(clientReq) {
         }
         else if (city.match(len1Re)) {
             mainObj.zip = -1;
-            //pretty sure this wont work since city isn't defined yet...
             mainObj.cities = findID(cityDB, city); 
             mainObj.flag = mainObj.cities.length >= 1 ? 'OK' : 'ERROR: city not found';
             return mainObj;
@@ -157,7 +190,7 @@ function findID(cityDB, city, country) {
     return ids;
 }
 
-function callAPI(response, apiReq) {
+function callAPI(response, apiReq, jsnSF) {
 
    console.log('parsed url sent to openweather: ' + url.format(apiReq));
    // I need to refactor the streaming of the get request to use through2.
@@ -177,18 +210,75 @@ function callAPI(response, apiReq) {
               '. It\'s currently ' + jsn.main.temp + ' degrees K');
            //console.log(typeof jsn.id); // it's a number! That's why we need to toString() it below
 
-           response.writeHead(200, {'Content-Type': 'text/plain'});
+           response.writeHead(200, {'Content-Type': 'application/json'});
+           response.write(JSON.stringify(jsn));
+           response.write('------------------------------------------\n');
+           response.end(JSON.stringify(compareWeather(jsnSF, jsn)));
            // you can only write back strings or buffers!!!;
-           response.end(`${jsn.name.toString()}, ${jsn.sys.country.toString()}:
-                        ${jsn.weather[0].description} and ${jsn.main.temp.toString()} degrees K`);
        }).on('error', (err) => {
            console.log(`Got error: ${err}`);
        });
    });
 }
 
+// takes two parsed json weather objects. returns an object containing
+// a property saying where the weather is better, and another property
+// explaining why. The code above as is already sends a JSON object back
+// to the client describing the weather there
+// simple conditions first. DO NOT MAKE THIS UNNECESSARILY COMPLICATED
+//   *clear in SF beats everything else. Even if it's hot. It's a dry heat, after all.
+//   *if both clear, compare humidity and temp. SF will probably win by default
+//   *if both cloudy, probably nicer in SF. Compare temp and humidity
+//   *possible case of a DRAW? Could be kinda funny. 
+//   *storming/raining in SF vs. clear anywhere else, query wins
+// 
+function compareWeather(jsnSF, jsnQuery) {
+   var comparison = {};
+   var SFweather = jsnSF.weather[0].id;
+   var qweather = jsnQuery.weather[0].id;
+   var SFtemp = jsnSF.main.temp;
+   var qtemp = jsnQuery.main.temp;
+   var SFhumidity = jsnSF.main.humidity;
+   var qhumidity = jsnQuery.main.humidity;
+
+   if (SFweather === 800) { // clear sky
+      comparison.result = 'SF';
+      comparison.summary = 'it\'s clear in SF. Win by default, even if it\'s hot' +
+         'after all, it is a dry heat';
+   }
+   else if ((SFweather >= 801 && SFweather <= 804) && (qweather >= 801 && qweather <= 804)) {
+      if ((SFhumidity >= 45 && SFhumidity <= 65) && (SFtemp >= 60 && SFtemp <= 74)) {
+         comparison.result = 'SF';
+         comparison.summary = 'temperature/humidity butter zone. Win by default';
+      }
+      else if ((qhumidity >= 45 && qhumidity <= 65) && (qtemp >= 60 && SFtemp <= 74)) {
+         comparison.result = `${jsnQuery.name}`
+         comparison.summary = 'It\'s cloudy in both San Francisco and ' + jsnQuery.name +
+            ', but your city\'s in the butter zone. Congratulations. Enjoy it while it lasts';
+      }
+      else {
+         comparison.result = 'DRAW';
+         comparison.summary = 'The weather sucks in both places today. It happens.';
+      }
+   }
+   
+   else if ((qhumidity >= 45 && qhumidity <= 65) && (qtemp >= 60 && SFtemp <= 74)) {
+      comparison.result = `${jsnQuery.name}`
+      comparison.summary = jsnQuery.name + ' is in the butter zone. Enjoy it while it lasts.' +
+         ' Eat at Arby\'s.'
+   }
+   else {
+      comparison.result = 'DRAW';
+      comparison.summary = 'The weather sucks in both places today. It happens.';
+   }
+
+   return comparison;
+}
 
 var server = http.createServer(onRequest);
 server.listen(8888);
 console.log('Server has started');
-// add compare
+exports.validateReq = validateReq;
+exports.findID = findID;
+exports.callAPI = callAPI;
+
