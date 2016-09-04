@@ -7,8 +7,10 @@ const PATH = 'http://api.openweathermap.org/data/2.5/weather';
 const CronJob = require('cron').CronJob;
 //initialize module
 var exports = module.exports = {};
+
 // update SF weather every 20 minutes
-var getSFweather = new CronJob('0 0,20,40 * * * * *', function() {
+var getSFweather = {};
+getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', function() {
       var SFquery = url.parse(PATH, true);
       SFquery.query['id'] = 5391959;
       SFquery.query['units'] = 'imperial';
@@ -22,9 +24,10 @@ var getSFweather = new CronJob('0 0,20,40 * * * * *', function() {
               resbody.push(chunk);
           }).on('end', function() {
               resbody = Buffer.concat(resbody);
-              const SFjsn = JSON.parse(resbody);
+              var SFjsn = JSON.parse(resbody);
+              this.SFjsn = SFjsn; // SFjsn is the property of a global object
               console.log('***SF WEATHER***\n');
-              console.log(SFjsn);
+              console.log(this.SFjsn);
           });
       });
     },
@@ -32,6 +35,7 @@ var getSFweather = new CronJob('0 0,20,40 * * * * *', function() {
     true, // start job immediately
     null // no time zone
     );
+
 
 
 // api call format: //  http://api.openweathermap.org/data/2.5/forecast/city?id=524901&APPID={APIKEY} 
@@ -71,7 +75,7 @@ function onRequest(request, response) {
                apiQuery.query['id'] = validatedQueryObj.cities[0].id;
                apiQuery.query['units'] = 'imperial';
                apiQuery.query['APPID'] = process.env.APIKEY;
-               callAPI(response, apiQuery, SFjsn);
+               callAPI(response, apiQuery);
             }
             else {
                if (validatedQueryObj.cities.length > 5) {
@@ -190,7 +194,7 @@ function findID(cityDB, city, country) {
     return ids;
 }
 
-function callAPI(response, apiReq, jsnSF) {
+function callAPI(response, apiReq) {
 
    console.log('parsed url sent to openweather: ' + url.format(apiReq));
    // I need to refactor the streaming of the get request to use through2.
@@ -204,16 +208,16 @@ function callAPI(response, apiReq, jsnSF) {
        }).on('end', function() {
            resbody = Buffer.concat(resbody);
            //console.log(`Can we print out a raw JSON property? : ${resbody.id}`);// no we can't. It's undefined.
-           const jsn = JSON.parse(resbody);
-           console.log(jsn);
-           console.log('The weather in ' + jsn.name + ' is ' + jsn.weather[0].description +
-              '. It\'s currently ' + jsn.main.temp + ' degrees K');
-           //console.log(typeof jsn.id); // it's a number! That's why we need to toString() it below
+           const queryJSN = JSON.parse(resbody);
+           console.log(queryJSN);
+           console.log('The weather in ' + queryJSN.name + ' is ' + queryJSN.weather[0].description +
+              '. It\'s currently ' + queryJSN.main.temp + ' degrees K');
+           //console.log(typeof queryJSN.id); // it's a number! That's why we need to toString() it below
 
            response.writeHead(200, {'Content-Type': 'application/json'});
-           response.write(JSON.stringify(jsn));
+           response.write(JSON.stringify(queryJSN));
            response.write('------------------------------------------\n');
-           response.end(JSON.stringify(compareWeather(jsnSF, jsn)));
+           response.end(JSON.stringify(compareWeather(getSFweather._SFjsn, queryJSN)));
            // you can only write back strings or buffers!!!;
        }).on('error', (err) => {
            console.log(`Got error: ${err}`);
