@@ -8,17 +8,16 @@ $(document).ready( function () {
 
     //using this to see if jquery.serialize()
     //is useful/good enough for our purposes..
+    //looks like it is!
     $('form').on( 'submit', function( event ) {
         event.preventDefault();
-        console.log( $( this ).serialize() );
-    });
-    
-    $('#search-button').click( function () {
+        console.log('captured form submit!');
+        console.log( $(this).serialize() );
         // $.ajax({
         //     url: 'some-url',
-        //     type: 'post',
+        //     type: 'get',
         //     dataType: 'json',
-        //     data: $('form#myForm').serialize(),
+        //     data: $(this).serialize(),
         //     success: function(data) {
         //         //modify the DOM
         //     }

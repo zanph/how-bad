@@ -19,20 +19,30 @@
       <form>
         <div class="form-group">
           <label for="location-input">Your location</label>
-          <input type="text" class="form-control" id="location-input" placeholder="Chicago, 60304, NYC">
+          <input type="text"
+                 class="form-control"
+                 name="firstLocation"
+                 id="location-input"
+                 placeholder="Chicago, 60304, NYC">
+        </div>
+
+        <label for="compare-input">Compare to</label>
+        <div class="input-group">
+          <input type="text"
+                class="form-control"
+                name="secondLocation"
+                placeholder="Dehli, Springfield, 90210">
+          <span class="input-group-btn">
+            <button class="btn btn-primary"
+                    type="submit"
+                    id="search-button">
+              Go!
+            </button>
+          </span>
+
         </div>
       </form>
-      <label for="compare-input">Compare to</label>
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Dehli, Springfield, 90210">
-        <span class="input-group-btn">
-          <button class="btn btn-primary"
-                  type="button"
-                  id="search-button">
-            Go!
-          </button>
-        </span>
-      </div>
+    
       <div class="randomLocation">
         <span>Or,
           <button class="btn btn-primary" 
@@ -42,5 +52,6 @@
           </button>
         </span>
       </div>
+    </div>
   </body>
 </html>
