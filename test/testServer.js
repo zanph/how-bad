@@ -17,7 +17,7 @@ var callAPI     = server.callAPI;
 describe('validateReq', function() {
 
     it('should accept a zip code and return an OK flag', function () {
-        let request = { 'q':60304 };
+        let request = { 'userLocation':60304 };
         let response = validateReq(request);
         expect(response).to.be.a('object');
         expect(response).to.have.property('flag');
@@ -25,7 +25,7 @@ describe('validateReq', function() {
     });
 
     it('should return an error flag for an invalid zip code', function() {
-        let request = { 'q':111 };
+        let request = { 'userLocation':111 };
         let response = validateReq(request);
         expect(response).to.be.a('object');
         expect(response).to.have.property('flag');
@@ -33,7 +33,7 @@ describe('validateReq', function() {
             .equal('ERROR: Invalid zip');
     });
     it('should return an error flag indicating city is not found if city does not exist in DB', function () {
-       let request = { 'q':'XanaduSparklehorse' };
+       let request = { 'userLocation':'XanaduSparklehorse' };
        let response = validateReq(request);
        expect(response).to.be.a('object');
        expect(response.to.have.property('flag');
