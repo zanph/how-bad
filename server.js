@@ -20,9 +20,13 @@ getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', function() {
           console.log(`Got SF weather; response code: ${res.statusCode}`);
           var resbody = [];
 
-          res.on('data', function(chunk) {
+          res.on('data', (chunk) => {
               resbody.push(chunk);
-          }).on('end', function() {
+          }).on('end', () => {
+              //IMPORTANT: we use an arrow function so that the value of
+              //`this` is set to the the value of the enclosing scope.
+              //That is, `this` is the getSFWeather object, and not the
+              //new value that a function () would create.
               resbody = Buffer.concat(resbody);
               var SFjsn = JSON.parse(resbody);
               this.SFjsn = SFjsn; // SFjsn is the property of a global object
