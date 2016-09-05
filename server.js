@@ -109,11 +109,11 @@ function validateReq(clientReq) {
     // mainObj.cities will be a list of city objects name and ID keys 
     var mainObj = {};
     const len1Re = /[A-Za-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/;
-    if (/[!@#$%^&*()_+=\[\]{}\|\/\?\\;<>-]+/.test(clientReq[userLocation])) {
+    if (/[!@#$%^&*()_+=\[\]{}\|\/\?\\;<>-]+/.test(clientReq['userLocation'])) {
       mainObj.flag = 'ERROR: Invalid characters. Enter a US zip code or a city and country, separated by commas';
       return mainObj;
     }
-    var trimmed = clientReq[userLocation].split(',').map(function (element) {
+    var trimmed = clientReq['userLocation'].split(',').map(function (element) {
         return element.trim();
     });
     const city = trimmed[0];
@@ -129,7 +129,7 @@ function validateReq(clientReq) {
                 return mainObj;
             }
             else {
-                console.log(`invalid query ${clientReq[userLocation]}`);
+                console.log(`invalid query ${clientReq['userLocation']}`);
                 mainObj.flag = 'ERROR: Invalid zip'; // invalid zipcode. We know it's a malformed zipcode, though.
                 // add more specific error handling!
                 return mainObj;
