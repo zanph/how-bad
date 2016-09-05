@@ -13,25 +13,26 @@
   </head>
   <body>
     <div class="pageHeader">
-      <h1> How bad is your weather (relative to somewhere else)? </h1>
+      <h1> How bad is your weather relative to San Francisco? </h1>
     </div>
     <div class="pageBody">
       <form>
 
-        <label for="location-input">Your location</label>
+        <!--We're just comparing one place to SF by default, for now!-->
+        <!--<label for="location-input">Your location</label>
         <div class="form-group">
           <input type="text"
                  class="form-control"
                  name="firstLocation"
                  id="location-input"
                  placeholder="New York // Paris, FR // 60304">
-        </div>
+        </div>-->
 
-        <label for="compare-input">Compare to</label>
+        <label for="compare-input">Your location</label>
         <div class="input-group">
           <input type="text"
                 class="form-control"
-                name="secondLocation"
+                name="userLocation"
                 placeholder="Chicago // Miami, USA // 10125">
           <span class="input-group-btn">
             <button class="btn btn-primary"
