@@ -22,10 +22,6 @@ getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
           res.on('data', (chunk) => {
               resbody.push(chunk);
           }).on('end', () => {
-              //IMPORTANT: we use an arrow function so that the value of
-              //`this` is set to the the value of the enclosing scope.
-              //That is, `this` is the getSFWeather object, and not the
-              //new value that a function () would create.
               resbody = Buffer.concat(resbody);
               var SFjsn = JSON.parse(resbody);
               getSFweather.SFjsn = SFjsn; // SFjsn is the property of a global object
@@ -113,11 +109,11 @@ function validateReq(clientReq) {
     // mainObj.cities will be a list of city objects name and ID keys 
     var mainObj = {};
     const len1Re = /[A-Za-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/;
-    if (/[!@#$%^&*()_+=\[\]{}\|\/\?\\;<>-]+/.test(clientReq['q'])) {
+    if (/[!@#$%^&*()_+=\[\]{}\|\/\?\\;<>-]+/.test(clientReq[userLocation])) {
       mainObj.flag = 'ERROR: Invalid characters. Enter a US zip code or a city and country, separated by commas';
       return mainObj;
     }
-    var trimmed = clientReq['q'].split(',').map(function (element) {
+    var trimmed = clientReq[userLocation].split(',').map(function (element) {
         return element.trim();
     });
     const city = trimmed[0];
@@ -133,7 +129,7 @@ function validateReq(clientReq) {
                 return mainObj;
             }
             else {
-                console.log(`invalid query ${clientReq['q']}`);
+                console.log(`invalid query ${clientReq[userLocation]}`);
                 mainObj.flag = 'ERROR: Invalid zip'; // invalid zipcode. We know it's a malformed zipcode, though.
                 // add more specific error handling!
                 return mainObj;

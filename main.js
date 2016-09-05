@@ -1,9 +1,18 @@
 $(document).ready( function () {
     
     $('#random-button').click( function () {
-        //pick 2 random ids from the database
-        //which will be of the form: //todo
-        //and compare them.
+        //make the same ajax request as the form submit, but
+        //use some name that indicates we want a random result.   
+        
+        // $.ajax({
+        //     url: 'some-url',
+        //     type: 'get',
+        //     dataType: 'json',
+        //     data: /*TODO*/,
+        //     success: function(data) {
+        //         //modify the DOM
+        //     }
+        // });
     });
 
     //using this to see if jquery.serialize()
