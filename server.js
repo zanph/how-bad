@@ -9,8 +9,7 @@ const CronJob = require('cron').CronJob;
 var exports = module.exports = {};
 
 // update SF weather every 20 minutes
-var getSFweather = {};
-getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', function() {
+getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
       var SFquery = url.parse(PATH, true);
       SFquery.query['id'] = 5391959;
       SFquery.query['units'] = 'imperial';
@@ -29,9 +28,8 @@ getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', function() {
               //new value that a function () would create.
               resbody = Buffer.concat(resbody);
               var SFjsn = JSON.parse(resbody);
-              this.SFjsn = SFjsn; // SFjsn is the property of a global object
+              getSFweather.SFjsn = SFjsn; // SFjsn is the property of a global object
               console.log('***SF WEATHER***\n');
-              console.log(this.SFjsn);
           });
       });
     },
@@ -221,7 +219,7 @@ function callAPI(response, apiReq) {
            response.writeHead(200, {'Content-Type': 'application/json'});
            response.write(JSON.stringify(queryJSN));
            response.write('------------------------------------------\n');
-           response.end(JSON.stringify(compareWeather(getSFweather._SFjsn, queryJSN)));
+           response.end(JSON.stringify(compareWeather(getSFweather.SFjsn, queryJSN)));
            // you can only write back strings or buffers!!!;
        }).on('error', (err) => {
            console.log(`Got error: ${err}`);
@@ -241,6 +239,8 @@ function callAPI(response, apiReq) {
 //   *storming/raining in SF vs. clear anywhere else, query wins
 // 
 function compareWeather(jsnSF, jsnQuery) {
+   //console.log('in compareWeather jsnSF is ');
+   //console.log(jsnSF);
    var comparison = {};
    var SFweather = jsnSF.weather[0].id;
    var qweather = jsnQuery.weather[0].id;
