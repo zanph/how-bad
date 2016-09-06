@@ -27,6 +27,7 @@ getSFWeather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
               var _SFJson = JSON.parse(resbody);
               getSFWeather._SFJson = _SFJson; // _SFJson is the property of a global object
               console.log('***SF WEATHER***\n');
+              console.log(_SFJson);
           });
       });
     },
@@ -201,6 +202,7 @@ function callAPI(response, apiReq) {
    http.get(url.format(apiReq), (res) => {
        console.log(`Got response: ${res.statusCode}`);
        var resbody = [];
+       var entireResponse = [];
 
        res.on('data', function(chunk) {
            resbody.push(chunk);
@@ -212,11 +214,14 @@ function callAPI(response, apiReq) {
            console.log('The weather in ' + queryJSN.name + ' is ' + queryJSN.weather[0].description +
               '. It\'s currently ' + queryJSN.main.temp + ' degrees K');
            //console.log(typeof queryJSN.id); // it's a number! That's why we need to toString() it below
-
+           entireResponse.push(
+              queryJSN, 
+              getSFWeather._SFJson,
+              compareWeather(getSFWeather._SFJson, queryJSN)
+              );
            response.writeHead(200, {'Content-Type': 'application/json'});
-           response.write(JSON.stringify(queryJSN));
-           response.write('------------------------------------------\n');
-           response.end(JSON.stringify(compareWeather(getSFWeather._SFJson, queryJSN)));
+           response.end(JSON.stringify(entireResponse,null,2));
+
            // you can only write back strings or buffers!!!;
        }).on('error', (err) => {
            console.log(`Got error: ${err}`);
