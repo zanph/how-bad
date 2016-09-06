@@ -24,8 +24,8 @@ getSFWeather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
               resbody.push(chunk);
           }).on('end', () => {
               resbody = Buffer.concat(resbody);
-              var SFjsn = JSON.parse(resbody);
-              getSFWeather.SFjsn = SFjsn; // SFjsn is the property of a global object
+              var _SFJson = JSON.parse(resbody);
+              getSFWeather._SFJson = _SFJson; // _SFJson is the property of a global object
               console.log('***SF WEATHER***\n');
           });
       });
@@ -216,7 +216,7 @@ function callAPI(response, apiReq) {
            response.writeHead(200, {'Content-Type': 'application/json'});
            response.write(JSON.stringify(queryJSN));
            response.write('------------------------------------------\n');
-           response.end(JSON.stringify(compareWeather(getSFWeather.SFjsn, queryJSN)));
+           response.end(JSON.stringify(compareWeather(getSFWeather._SFJson, queryJSN)));
            // you can only write back strings or buffers!!!;
        }).on('error', (err) => {
            console.log(`Got error: ${err}`);
@@ -239,24 +239,24 @@ function compareWeather(jsnSF, jsnQuery) {
    //console.log('in compareWeather jsnSF is ');
    //console.log(jsnSF);
    var comparison = {};
-   var SFweather = jsnSF.weather[0].id;
-   var qweather = jsnQuery.weather[0].id;
-   var SFtemp = jsnSF.main.temp;
-   var qtemp = jsnQuery.main.temp;
-   var SFhumidity = jsnSF.main.humidity;
-   var qhumidity = jsnQuery.main.humidity;
+   const SFWeather = jsnSF.weather[0].id;
+   const qWeather = jsnQuery.weather[0].id;
+   const SFTemp = jsnSF.main.temp;
+   const qTemp = jsnQuery.main.temp;
+   const SFHumidity = jsnSF.main.humidity;
+   const qHumidity = jsnQuery.main.humidity;
 
-   if (SFweather === 800) { // clear sky
+   if (SFWeather === 800) { // clear sky
       comparison.result = 'SF';
       comparison.summary = 'it\'s clear in SF. Win by default, even if it\'s hot' +
          'after all, it is a dry heat';
    }
-   else if ((SFweather >= 801 && SFweather <= 804) && (qweather >= 801 && qweather <= 804)) {
-      if ((SFhumidity >= 45 && SFhumidity <= 65) && (SFtemp >= 60 && SFtemp <= 74)) {
+   else if ((SFWeather >= 801 && SFWeather <= 804) && (qWeather >= 801 && qWeather <= 804)) {
+      if ((SFHumidity >= 45 && SFHumidity <= 65) && (SFTemp >= 60 && SFTemp <= 74)) {
          comparison.result = 'SF';
          comparison.summary = 'temperature/humidity butter zone. Win by default';
       }
-      else if ((qhumidity >= 45 && qhumidity <= 65) && (qtemp >= 60 && SFtemp <= 74)) {
+      else if ((qHumidity >= 45 && qHumidity <= 65) && (qTemp >= 60 && SFTemp <= 74)) {
          comparison.result = `${jsnQuery.name}`;
          comparison.summary = 'It\'s cloudy in both San Francisco and ' + jsnQuery.name +
             ', but your city\'s in the butter zone. Congratulations. Enjoy it while it lasts';
@@ -267,7 +267,7 @@ function compareWeather(jsnSF, jsnQuery) {
       }
    }
    
-   else if ((qhumidity >= 45 && qhumidity <= 65) && (qtemp >= 60 && SFtemp <= 74)) {
+   else if ((qHumidity >= 45 && qHumidity <= 65) && (qTemp >= 60 && SFTemp <= 74)) {
       comparison.result = `${jsnQuery.name}`;
       comparison.summary = jsnQuery.name + ' is in the butter zone. Enjoy it while it lasts.' +
           ' Eat at Arby\'s.';
