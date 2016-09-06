@@ -9,7 +9,8 @@ const CronJob = require('cron').CronJob;
 var exports = module.exports = {};
 
 // update SF weather every 20 minutes
-getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
+var getSFWeather = {};
+getSFWeather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
       var SFquery = url.parse(PATH, true);
       SFquery.query['id'] = 5391959;
       SFquery.query['units'] = 'imperial';
@@ -24,7 +25,7 @@ getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
           }).on('end', () => {
               resbody = Buffer.concat(resbody);
               var SFjsn = JSON.parse(resbody);
-              getSFweather.SFjsn = SFjsn; // SFjsn is the property of a global object
+              getSFWeather.SFjsn = SFjsn; // SFjsn is the property of a global object
               console.log('***SF WEATHER***\n');
           });
       });
@@ -215,7 +216,7 @@ function callAPI(response, apiReq) {
            response.writeHead(200, {'Content-Type': 'application/json'});
            response.write(JSON.stringify(queryJSN));
            response.write('------------------------------------------\n');
-           response.end(JSON.stringify(compareWeather(getSFweather.SFjsn, queryJSN)));
+           response.end(JSON.stringify(compareWeather(getSFWeather.SFjsn, queryJSN)));
            // you can only write back strings or buffers!!!;
        }).on('error', (err) => {
            console.log(`Got error: ${err}`);
@@ -256,7 +257,7 @@ function compareWeather(jsnSF, jsnQuery) {
          comparison.summary = 'temperature/humidity butter zone. Win by default';
       }
       else if ((qhumidity >= 45 && qhumidity <= 65) && (qtemp >= 60 && SFtemp <= 74)) {
-         comparison.result = `${jsnQuery.name}`
+         comparison.result = `${jsnQuery.name}`;
          comparison.summary = 'It\'s cloudy in both San Francisco and ' + jsnQuery.name +
             ', but your city\'s in the butter zone. Congratulations. Enjoy it while it lasts';
       }
@@ -267,9 +268,9 @@ function compareWeather(jsnSF, jsnQuery) {
    }
    
    else if ((qhumidity >= 45 && qhumidity <= 65) && (qtemp >= 60 && SFtemp <= 74)) {
-      comparison.result = `${jsnQuery.name}`
+      comparison.result = `${jsnQuery.name}`;
       comparison.summary = jsnQuery.name + ' is in the butter zone. Enjoy it while it lasts.' +
-         ' Eat at Arby\'s.'
+          ' Eat at Arby\'s.';
    }
    else {
       comparison.result = 'DRAW';
