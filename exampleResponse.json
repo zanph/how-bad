@@ -1,0 +1,104 @@
+[
+  {
+    "coord": {
+      "lon": -87.65,
+      "lat": 41.85
+    },
+    "weather": [
+      {
+        "id": 500,
+        "main": "Rain",
+        "description": "light rain",
+        "icon": "10d"
+      },
+      {
+        "id": 741,
+        "main": "Fog",
+        "description": "fog",
+        "icon": "50d"
+      },
+      {
+        "id": 701,
+        "main": "Mist",
+        "description": "mist",
+        "icon": "50d"
+      }
+    ],
+    "base": "stations",
+    "main": {
+      "temp": 72.57,
+      "pressure": 1014,
+      "humidity": 78,
+      "temp_min": 69.8,
+      "temp_max": 75.99
+    },
+    "visibility": 16093,
+    "wind": {
+      "speed": 8.05,
+      "deg": 140
+    },
+    "rain": {
+      "1h": 0.51
+    },
+    "clouds": {
+      "all": 90
+    },
+    "dt": 1473433626,
+    "sys": {
+      "type": 1,
+      "id": 961,
+      "message": 0.0328,
+      "country": "US",
+      "sunrise": 1473420347,
+      "sunset": 1473466107
+    },
+    "id": 4887398,
+    "name": "Chicago",
+    "cod": 200
+  },
+  {
+    "coord": {
+      "lon": -122.42,
+      "lat": 37.77
+    },
+    "weather": [
+      {
+        "id": 701,
+        "main": "Mist",
+        "description": "mist",
+        "icon": "50d"
+      }
+    ],
+    "base": "cmc stations",
+    "main": {
+      "temp": 57.49,
+      "pressure": 1017,
+      "humidity": 87,
+      "temp_min": 46.99,
+      "temp_max": 77
+    },
+    "wind": {
+      "speed": 6.93,
+      "deg": 300
+    },
+    "clouds": {
+      "all": 90
+    },
+    "dt": 1473433174,
+    "sys": {
+      "type": 1,
+      "id": 478,
+      "message": 0.0059,
+      "country": "US",
+      "sunrise": 1473428852,
+      "sunset": 1473474293
+    },
+    "id": 5391959,
+    "name": "San Francisco",
+    "cod": 200
+  },
+  {
+    "result": "DRAW",
+    "summary": "The weather sucks in both places today. It happens."
+  }
+]
