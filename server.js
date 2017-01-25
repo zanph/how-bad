@@ -7,9 +7,10 @@ const PATH = 'http://api.openweathermap.org/data/2.5/weather';
 const CronJob = require('cron').CronJob;
 //initialize module
 var exports = module.exports = {};
+var getSFweather = {};
 
 // update SF weather every 20 minutes
-getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
+var job = new CronJob('0 0,20,40 * * * * *', () => {
       var SFquery = url.parse(PATH, true);
       SFquery.query['id'] = 5391959;
       SFquery.query['units'] = 'imperial';
