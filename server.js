@@ -10,7 +10,7 @@ var exports = module.exports = {};
 var getSFweather = {};
 
 // update SF weather every 20 minutes
-var job = new CronJob('0 0,20,40 * * * * *', () => {
+getSFweather._CronJob = new CronJob('0 0,20,40 * * * * *', () => {
       var SFquery = url.parse(PATH, true);
       SFquery.query['id'] = 5391959;
       SFquery.query['units'] = 'imperial';
@@ -25,7 +25,7 @@ var job = new CronJob('0 0,20,40 * * * * *', () => {
           }).on('end', () => {
               resbody = Buffer.concat(resbody);
               var _SFJson = JSON.parse(resbody);
-              getSFWeather._SFJson = _SFJson; // _SFJson is the property of a global object
+              this._SFJson = _SFJson; // _SFJson is the property of a global object
               console.log('***SF WEATHER***\n');
               console.log(_SFJson);
           });
